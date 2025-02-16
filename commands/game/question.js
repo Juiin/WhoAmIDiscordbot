@@ -91,17 +91,14 @@ module.exports = {
 
             if (confirmation.customId === 'yes') {
                 question.true = true;
-                await confirmation.message.delete();
-                await interaction.followUp({ content: `✅ ${question.question} <@${playerAsking.id}>`, components: [] });
+                await confirmation.update({ content: `✅ ${question.question} <@${playerAsking.id}>`, components: [] });
             } else if (confirmation.customId === 'no') {
                 question.true = false;
                 playerAsking.noAmount[playerAsking.round]++;
-                await confirmation.message.delete();
-                await interaction.followUp({ content: `❌ ${question.question} <@${playerAsking.id}>\n Current Round No's: ${playerAsking.noAmount[playerAsking.round]} \n Total No's: ${playerAsking.noAmount.reduce((a, b) => a + b, 0)}`, components: [] });
+                await confirmation.update({ content: `❌ ${question.question} <@${playerAsking.id}>\n Current Round No's: ${playerAsking.noAmount[playerAsking.round]} \n Total No's: ${playerAsking.noAmount.reduce((a, b) => a + b, 0)}`, components: [] });
             } else if(confirmation.customId === "cancel"){
                 playerAsking.activeQuestion = undefined;
-                await confirmation.message.delete();
-                return await interaction.followUp({ content: `Your question was cancelled, please ask a new one. <@${playerAsking.id}>`, flags: MessageFlags.Ephemeral });
+                return await confirmation.update({ content: `Your question was cancelled, please ask a new one. <@${playerAsking.id}>`, components: [] });
             }
            
                 
