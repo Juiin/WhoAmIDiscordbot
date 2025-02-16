@@ -44,7 +44,7 @@ for (const file of eventFiles) {
 client.cooldowns = new Collection();
 
 // Game
-
+const test = "test";
 client.activeGames = [];
 client.activePlayerGames = new Collection();
 
