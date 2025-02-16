@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags} = require('discord.js');
 const { Game, Question} = require('../../classes.js');
 const { intersection } = require('lodash');
 
@@ -70,8 +70,13 @@ module.exports = {
 			.setLabel('No')
 			.setStyle(ButtonStyle.Danger);
 
+        const cancel = new ButtonBuilder()
+			.setCustomId('cancel')
+			.setLabel('Cancel')
+			.setStyle(ButtonStyle.Secondary);
+
 		const row = new ActionRowBuilder()
-			.addComponents(yes, no);
+			.addComponents(yes, no, cancel);
 
         const response = await interaction.reply({
 			content: `${question.question} <@${playerToAsk.id}>`,
@@ -82,15 +87,21 @@ module.exports = {
         const collectorFilter  = i => i.user.id === playerToAsk.id;
 
         try {
-            const confirmation = await response.resource.message.awaitMessageComponent({ filter: collectorFilter, time: 6000_000 });
+            const confirmation = await response.resource.message.awaitMessageComponent({ filter: collectorFilter, time: 2147483646 });
 
             if (confirmation.customId === 'yes') {
                 question.true = true;
-                await confirmation.update({ content: `✅ ${question.question} <@${playerAsking.id}>`, components: [] });
+                await confirmation.message.delete();
+                await interaction.followUp({ content: `✅ ${question.question} <@${playerAsking.id}>`, components: [] });
             } else if (confirmation.customId === 'no') {
                 question.true = false;
                 playerAsking.noAmount[playerAsking.round]++;
-                await confirmation.update({ content: `❌ ${question.question} <@${playerAsking.id}>\n Current Round No's: ${playerAsking.noAmount[playerAsking.round]} \n Total No's: ${playerAsking.noAmount.reduce((a, b) => a + b, 0)}`, components: [] });
+                await confirmation.message.delete();
+                await interaction.followUp({ content: `❌ ${question.question} <@${playerAsking.id}>\n Current Round No's: ${playerAsking.noAmount[playerAsking.round]} \n Total No's: ${playerAsking.noAmount.reduce((a, b) => a + b, 0)}`, components: [] });
+            } else if(confirmation.customId === "cancel"){
+                playerAsking.activeQuestion = undefined;
+                await confirmation.message.delete();
+                return await interaction.followUp({ content: `Your question was cancelled, please ask a new one. <@${playerAsking.id}>`, flags: MessageFlags.Ephemeral });
             }
            
                 
@@ -98,7 +109,8 @@ module.exports = {
             playerAsking.activeQuestion = undefined;
         } catch(error) {
             console.error(error);
-            await interaction.editReply({ content: 'Confirmation not received within 1 minute, cancelling', components: [] });
+            playerAsking.activeQuestion = undefined;
+            await interaction.editReply({ content: 'Confirmation not received within timelimit, cancelling', components: [] });
         }
     },
 };

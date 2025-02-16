@@ -21,6 +21,15 @@ module.exports = {
             return await interaction.reply("You can't start a game with yourself");
         }
 
+		const gameArray = interaction.client.activePlayerGames.get(user.id);
+        if (gameArray){
+             for (let i=0;i<gameArray.length;i++){
+                if (gameArray[i].player1.id === userToPlayWith.id || gameArray[i].player2.id === userToPlayWith.id){
+                    return await interaction.reply("You already have a game started with that user.");
+                }
+             }
+        }
+
 		//Make Game and push to gameslist
         const game = new Game(user, userToPlayWith);
         interaction.client.activeGames.push(game);
