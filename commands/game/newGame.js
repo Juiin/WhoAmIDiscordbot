@@ -38,6 +38,6 @@ module.exports = {
 			interaction.client.activePlayerGames.set(userToPlayWith.id, [game]);
 		}
 
-		await interaction.reply(`Started game with ${userToPlayWith.globalName} Have Fun!`);
+		await interaction.reply(`Started game with <@${userToPlayWith.id}> **Have Fun!**`);
 	},
 };
