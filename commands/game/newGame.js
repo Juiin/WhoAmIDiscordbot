@@ -32,7 +32,7 @@ module.exports = {
 
 		//Make Game and push to gameslist
         const game = new Game(user, userToPlayWith);
-        interaction.client.activeGames.push(game);
+        //interaction.client.activeGames.push(game);
 
 		//push game to activePlayerGames to better serach for it by player username
 		if (interaction.client.activePlayerGames.get(user.id)){

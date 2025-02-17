@@ -60,7 +60,7 @@ module.exports = {
         playerToAsk.questions[playerToAsk.round] = [];
         playerToAsk.roundsWon++;
 
-        let replyString = `Congratulations! Your character was **${character}**! It took you **${playerToAsk.noAmount[playerToAsk.round]}** No's to guess it. Your Total No Count is: **${playerToAsk.noAmount.reduce((a, b) => a + b, 0)}** <@${playerToAsk.id}>\n`;
+        let replyString = `Congratulations! Your character was **${character}**! It took you **${playerToAsk.noAmount[playerToAsk.round-1]}** No's to guess it. Your Total No Count is: **${playerToAsk.noAmount.reduce((a, b) => a + b, 0)}** <@${playerToAsk.id}>\n`;
         replyString += `You won **${playerToAsk.roundsWon}** ${playerToAsk.roundsWon === 1 ? 'Round' : 'Rounds'}.\nYou guessed these Characters so far:\n`;
         for (let i=0;i<playerToAsk.characters.length;i++){
             replyString += playerToAsk.characters[i] + "\n";

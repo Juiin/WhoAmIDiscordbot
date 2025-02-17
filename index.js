@@ -45,7 +45,7 @@ client.cooldowns = new Collection();
 
 // Game
 
-client.activeGames = [];
+//client.activeGames = []; not used
 client.activePlayerGames = new Collection();
 
 

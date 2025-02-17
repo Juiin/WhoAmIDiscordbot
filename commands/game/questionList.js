@@ -6,6 +6,9 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('questionlist')
 		.setDescription('Get a list of all the Questions for your currenct Character')
+        .addBooleanOption(option =>
+            option.setName(`opponent`)
+                .setDescription('Whether or not to get your opponnents list instead of your own'))
 		.addUserOption(option =>
 			option.setName('user')
 				.setDescription(`If you have multiple Games going on at the same time, specificy with whom you are playing.`)
@@ -49,9 +52,10 @@ module.exports = {
         }
 
         let replyString = "Questions for your current Character: \n";
-        if(playerAsking.questions[playerAsking.round]){
-            for (let i=0;i<playerAsking.questions[playerAsking.round].length;i++){
-                const question = playerAsking.questions[playerAsking.round][i];
+        const player = interaction.options.getBoolean(`opponent`) ? playerToAsk : playerAsking;
+        if(player.questions[player.round]){
+            for (let i=0;i<player.questions[player.round].length;i++){
+                const question = player.questions[player.round][i];
                 replyString += question.true ? "✅ " : "❌ ";
                 replyString += question.question;
                 replyString += "\n";
