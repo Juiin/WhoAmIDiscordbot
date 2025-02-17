@@ -84,7 +84,11 @@ module.exports = {
             withResponse: true,
 		});
 
-        const collectorFilter  = i => i.user.id === playerToAsk.id;
+        //const collectorFilter  = i => i.user.id === playerToAsk.id;
+
+        const collectorFilter = i => 
+            (i.customId === 'yes' || i.customId === 'no') && i.user.id === playerToAsk.id || 
+            (i.customId === 'cancel' && (i.user.id === playerToAsk.id || i.user.id === playerAsking.id));
 
         try {
             const confirmation = await response.resource.message.awaitMessageComponent({ filter: collectorFilter, time: 2147483646 });
