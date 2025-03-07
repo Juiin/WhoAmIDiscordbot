@@ -8,7 +8,6 @@ class Game {
 class Question {
 	constructor(question){
 		this.question = question;
-		//this.answered = false;
 		this.true = false;
 	}
 }
@@ -28,4 +27,4 @@ class Player {
 	}
 }
 
-module.exports = {Game, Question, Player};
+module.exports = { Game, Question, Player };

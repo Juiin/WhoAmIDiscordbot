@@ -1,6 +1,9 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { Game, Question} = require('../../classes.js');
 const { intersection } = require('lodash');
+const { findGameByPlayerIds } = require("../../util.js")
+const mongoose = require(`mongoose`);
+const { gameSchema } = require("../../gameSchema.js");
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -21,22 +24,15 @@ module.exports = {
             return await interaction.reply("You can't close a game with yourself");
         }
 
-		const gameArray = interaction.client.activePlayerGames.get(user.id);
-		let game;
-        if (gameArray){
-             for (let i=0;i<gameArray.length;i++){
-                if (gameArray[i].player1.id === userToPlayWith.id || gameArray[i].player2.id === userToPlayWith.id){
-                    game = gameArray[i];
-					gameArray.splice(i, 1);
-                }
-             }
-        }
 
-		if (!game){
+		game = await findGameByPlayerIds(user.id, userToPlayWith.id);
+		
+		if(!game){
 			return await interaction.reply(`You don't have any games started with that user. <@${interaction.user.id}>`);
+		}else{
+			game.closed = true;
+			await game.save();
+			await interaction.reply(`Closed game with <@${userToPlayWith.id}>`);
 		}
-
-
-		await interaction.reply(`Closed game with <@${userToPlayWith.id}>`);
 	},
 };

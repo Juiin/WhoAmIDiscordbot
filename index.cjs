@@ -1,5 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
+const mongoose = require(`mongoose`);
 
 // Require the necessary discord.js classes
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
@@ -45,8 +46,46 @@ client.cooldowns = new Collection();
 
 // Game
 
+const dbUrl = "mongodb://localhost:27017/WhoAmIGames";
+
+mongoose.connect(dbUrl, {})
+	.then(result => console.log("Database connected"))
+	.catch(err => console.log(err));
+
+// 	const { gameSchema } = require("./gameSchema.js");
+// 	const { Game } = require("./classes.js");
+	
+// 	const user1 = {id: 3, username: "nils", globalName: "nils23" };
+// 	const user2 = {id: 2, username: "juin", globalName: "juin64" };
+	
+// 	test = new gameSchema(new Game(user1, user2));
+
+// 	//dbtest(test.save());
+	
+// 	const game = dbtest(gameSchema.find({
+// 		$or: [
+// 			{ 'player1.id': 3, 'player2.id': 2 },  // player1 is 2 and player2 is 3
+// 			{ 'player1.id': 2, 'player2.id': 3 }   // player1 is 3 and player2 is 2
+// 		  ]
+// 	  }));
+
+	
+// 	//dbtest(game.save());
+	
+// 	//const firstGame = gameSchema.findOne({});
+// 	//console.log(firstGame);
+// async function dbtest(t){
+// 	try {
+// 		const res = await t;
+// 		//console.log(res[0].player1.activeQuestion);
+// 		return res;
+// 	} catch(err){
+// 		console.log(err);
+// 	}
+	 
+// }
 //client.activeGames = []; not used
-client.activePlayerGames = new Collection();
+//client.activePlayerGames = new Collection();
 
 
 // Log in to Discord with your client's token

@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags} = require('discord.js');
 const { Game, Question} = require('../../classes.js');
 const { intersection } = require('lodash');
+const { findGameByPlayerIds, findGamesByPlayerId } = require("../../util.js")
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -17,31 +18,26 @@ module.exports = {
 		.setIntegrationTypes([0, 1])
 		.setContexts([0, 1, 2]),
 	async execute(interaction) {
-        if (!interaction.client.activePlayerGames.get(interaction.user.id)){
-            return await interaction.reply(`You don't have any games started. <@${interaction.user.id}>`);
-        }
 
         
 		const userToAsk = interaction.options.getUser('user');
 
+        let game = await findGamesByPlayerId(interaction.user.id);
+		
+		if (game.length <= 0){
+			return await interaction.reply(`You don't have any games started. <@${interaction.user.id}>`);
+		} 
 
-        const gameArray = interaction.client.activePlayerGames.get(interaction.user.id);
-
-        let game;
         if (userToAsk){
-             for (let i=0;i<gameArray.length;i++){
-                if (gameArray[i].player1.id === userToAsk.id || gameArray[i].player2.id === userToAsk.id){
-                    game = gameArray[i];
-                    break;
-                }
-                if (i===gameArray.length-1){
-                    return await interaction.reply("You don't have a game with that user");
-                }
-             }
-             
+            game = await findGameByPlayerIds(interaction.user.id, userToAsk.id);
+
+            if (!game){
+                return await interaction.reply("You don't have a game with that user");
+            }
         }else{
-             game = gameArray[0];
+            game = game[0];
         }
+
         
         let playerAsking,playerToAsk;
         if (game.player1.id === interaction.user.id){
@@ -52,12 +48,13 @@ module.exports = {
             playerToAsk = game.player1;
         }
 
-        if(playerAsking.activeQuestion !== undefined){
+        if(playerAsking.activeQuestion.question !== undefined){
             return await interaction.reply("You already have an active Question.");
         }
 
         const question = new Question(interaction.options.getString("question"));
         playerAsking.activeQuestion = question;
+        game.save();
         
 
         const yes = new ButtonBuilder()
@@ -84,7 +81,6 @@ module.exports = {
             withResponse: true,
 		});
 
-        //const collectorFilter  = i => i.user.id === playerToAsk.id;
 
         const collectorFilter = i => 
             (i.customId === 'yes' || i.customId === 'no') && i.user.id === playerToAsk.id || 
@@ -101,16 +97,19 @@ module.exports = {
                 playerAsking.noAmount[playerAsking.round]++;
                 await confirmation.update({ content: `❌ ${question.question} <@${playerAsking.id}>\n Current Round No's: ${playerAsking.noAmount[playerAsking.round]} \n Total No's: ${playerAsking.noAmount.reduce((a, b) => a + b, 0)}`, components: [] });
             } else if(confirmation.customId === "cancel"){
-                playerAsking.activeQuestion = undefined;
+                playerAsking.activeQuestion = {};
+                game.save();
                 return await confirmation.update({ content: `Your question was cancelled, please ask a new one. <@${playerAsking.id}>`, components: [] });
             }
            
                 
             playerAsking.questions[playerAsking.round].push(question);
-            playerAsking.activeQuestion = undefined;
+            playerAsking.activeQuestion = {};
+            game.save();
         } catch(error) {
             console.error(error);
-            playerAsking.activeQuestion = undefined;
+            playerAsking.activeQuestion = {};
+            game.save();
             await interaction.editReply({ content: 'Confirmation not received within timelimit, cancelling', components: [] });
         }
     },

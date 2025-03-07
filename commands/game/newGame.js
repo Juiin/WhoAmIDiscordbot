@@ -1,6 +1,9 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { Game, Question} = require('../../classes.js');
+const { gameSchema } = require("../../gameSchema.js");
 const { intersection } = require('lodash');
+const mongoose = require(`mongoose`);
+const { findGameByPlayerIds } = require("../../util.js")
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -21,32 +24,15 @@ module.exports = {
             return await interaction.reply("You can't start a game with yourself");
         }
 
-		const gameArray = interaction.client.activePlayerGames.get(user.id);
-        if (gameArray){
-             for (let i=0;i<gameArray.length;i++){
-                if (gameArray[i].player1.id === userToPlayWith.id || gameArray[i].player2.id === userToPlayWith.id){
-                    return await interaction.reply("You already have a game started with that user.");
-                }
-             }
-        }
-
-		//Make Game and push to gameslist
-        const game = new Game(user, userToPlayWith);
-        //interaction.client.activeGames.push(game);
-
-		//push game to activePlayerGames to better serach for it by player username
-		if (interaction.client.activePlayerGames.get(user.id)){
-			interaction.client.activePlayerGames.get(user.id).push(game);
-		} else {
-			interaction.client.activePlayerGames.set(user.id, [game]);
+		game = await findGameByPlayerIds(user.id, userToPlayWith.id);
+		
+		if (game){
+			return await interaction.reply("You already have a game started with that user.");
+		} 
+		else {
+			const schema = new gameSchema(new Game(user, userToPlayWith));
+			await schema.save();
+			await interaction.reply(`Started game with <@${userToPlayWith.id}> **Have Fun!**`);
 		}
-
-		if (interaction.client.activePlayerGames.get(userToPlayWith.id)){
-			interaction.client.activePlayerGames.get(userToPlayWith.id).push(game);
-		} else {
-			interaction.client.activePlayerGames.set(userToPlayWith.id, [game]);
-		}
-
-		await interaction.reply(`Started game with <@${userToPlayWith.id}> **Have Fun!**`);
 	},
 };
