@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags} = require('discord.js');
 const { Game, Question} = require('../../classes.js');
 const { intersection } = require('lodash');
-const { findGameByPlayerIds, findGamesByPlayerId } = require("../../util.js")
+const { findGameByPlayerIds, findGamesByPlayerId, findGameWithUser, findUser } = require("../../util.js")
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -35,7 +35,8 @@ module.exports = {
                 return await interaction.reply("You don't have a game with that user");
             }
         }else{
-            game = game[0];
+            const databaseUser = await findUser(interaction.user.id);
+            game = findGameWithUser(game, databaseUser.defaultUser);
         }
 
         

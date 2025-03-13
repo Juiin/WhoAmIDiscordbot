@@ -3,7 +3,7 @@ const { Game, Question} = require('../../classes.js');
 const { gameSchema } = require("../../gameSchema.js");
 const { intersection } = require('lodash');
 const mongoose = require(`mongoose`);
-const { findGameByPlayerIds } = require("../../util.js")
+const { findGameByPlayerIds, createNewUser } = require("../../util.js")
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -32,6 +32,16 @@ module.exports = {
 		else {
 			const schema = new gameSchema(new Game(user, userToPlayWith));
 			await schema.save();
+
+			let newUser = await createNewUser(user);
+			newUser.defaultUser = userToPlayWith.id;
+			await newUser.save();
+
+			newUser = await createNewUser(userToPlayWith);
+			newUser.defaultUser = user.id;
+			await newUser.save();
+
+
 			await interaction.reply(`Started game with <@${userToPlayWith.id}> **Have Fun!**`);
 		}
 	},

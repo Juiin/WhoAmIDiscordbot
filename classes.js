@@ -27,4 +27,14 @@ class Player {
 	}
 }
 
-module.exports = { Game, Question, Player };
+class DatabaseUser {
+	constructor(id, username, globalName){
+		this.id = id;
+		this.username = username;
+		this.globalName = globalName;
+
+		this.defaultUser = "";
+	}
+}
+
+module.exports = { Game, Question, Player, DatabaseUser };
