@@ -60,6 +60,7 @@ module.exports = {
             const response = await interaction.reply({
                 content: `You already have an active question: **"${playerAsking.activeQuestion.question}"**\nDo you want to cancel it?`,
                 components: [row],
+                flags: MessageFlags.Ephemeral,
             });
         
             try {
